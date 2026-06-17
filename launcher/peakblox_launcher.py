@@ -14,8 +14,11 @@ def main():
     tk.Label(root, text="Classic Roblox Revival", font=("Arial", 14), fg="#fff", bg='#0a0a0a').pack(pady=10)
 
     def launch_game():
-        messagebox.showinfo("Launching", "Connecting to PeakBlox servers...\n\n(Integrate with Novetus or Rboxlo2 here)")
-        # Example: webbrowser.open('http://localhost:3000')
+        messagebox.showinfo("Launching", "Opening PeakBlox Games Hub...\n\nYou can also launch games directly from the website.")
+        webbrowser.open('http://localhost:3000')
+        
+        # Future integration example:
+        # os.system('start "" "path_to_novetus_or_rboxlo"')
 
     def open_studio():
         webbrowser.open('http://localhost:3000/#studio')
@@ -24,7 +27,7 @@ def main():
     tk.Button(root, text="Open PeakBlox Studio", command=open_studio, bg="#00cc00", fg="white", font=("Arial", 12), width=30, height=2).pack(pady=10)
     tk.Button(root, text="Join Discord", command=lambda: webbrowser.open('https://discord.gg/peakblox'), bg="#7289da", fg="white", font=("Arial", 12), width=30, height=2).pack(pady=10)
 
-    tk.Label(root, text="Version 0.2 • Made for Windows", fg="#666", bg='#0a0a0a').pack(side="bottom", pady=20)
+    tk.Label(root, text="Version 0.3 • Home Screen Launcher • Play from Web or EXE", fg="#666", bg='#0a0a0a').pack(side="bottom", pady=20)
 
     root.mainloop()
 
