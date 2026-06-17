@@ -7,72 +7,99 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
     <style>
         body { margin:0; font-family:Arial; background:#0a0a0a; color:white; overflow-x:hidden; }
-        header { background:#111; padding:15px; text-align:center; }
-        h1 { color:#ff4d4d; margin:0; }
-        .nav { padding:10px; background:#1a1a1a; text-align:center; }
-        button { background:#ff4d4d; color:white; border:none; padding:12px 24px; margin:5px; cursor:pointer; font-size:16px; }
-        .game-container { display:none; padding:20px; }
+        header { background:#111; padding:20px; text-align:center; }
+        h1 { color:#ff4d4d; margin:0; font-size:2.8rem; }
+        .nav { padding:15px; background:#1a1a1a; text-align:center; }
+        button { background:#ff4d4d; color:white; border:none; padding:12px 28px; margin:8px; cursor:pointer; font-size:16px; border-radius:6px; }
+        .game-container { display:none; padding:20px; min-height:80vh; }
         .active { display:block; }
+        canvas { display:block; margin:0 auto; background:#000; border-radius:8px; }
     </style>
 </head>
 <body>
     <header>
         <h1>PEAKBLOX</h1>
-        <p>Classic Roblox Private Server Revival</p>
+        <p>Classic Roblox Revival • Private Servers</p>
     </header>
 
     <div class="nav">
         <button onclick="showSection('home')">Home</button>
         <button onclick="showSection('games')">Games</button>
         <button onclick="showSection('studio')">Studio</button>
-        <button onclick="window.open('https://discord.com', '_blank')">Discord</button>
+        <button onclick="window.open('https://discord.gg/peakblox','_blank')">Discord</button>
     </div>
 
-    <div id="home" class="game-container active">
-        <h2 style="text-align:center; padding:40px;">Welcome to PeakBlox</h2>
-        <div style="text-align:center;">
-            <button onclick="showSection('games')">Play Games</button>
-        </div>
+    <div id="home" class="game-container active" style="text-align:center; padding-top:80px;">
+        <h2>Welcome to PeakBlox!</h2>
+        <p style="font-size:1.3rem;">Click Games to play real classic-style experiences.</p>
+        <button onclick="showSection('games')" style="font-size:20px; padding:20px 40px;">Play Now</button>
     </div>
 
     <div id="games" class="game-container">
-        <h2 style="text-align:center;">Classic Games</h2>
-        
-        <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(300px,1fr)); gap:20px; padding:20px;">
-            <!-- Natural Disaster Survival -->
-            <div style="background:#1a1a1a; padding:15px; border-radius:8px;">
-                <h3>Natural Disaster Survival</h3>
-                <button onclick="launchGame('disaster')">Play</button>
-            </div>
-
-            <!-- Obby -->
-            <div style="background:#1a1a1a; padding:15px; border-radius:8px;">
-                <h3>Obstacle Course (Obby)</h3>
-                <button onclick="launchGame('obby')">Play</button>
-            </div>
-
-            <!-- Ragdoll -->
-            <div style="background:#1a1a1a; padding:15px; border-radius:8px;">
-                <h3>Ragdoll Playground</h3>
-                <button onclick="launchGame('ragdoll')">Play</button>
-            </div>
+        <h2 style="text-align:center;">Play Real Games</h2>
+        <div style="text-align:center; margin:20px;">
+            <button onclick="launchGame('disaster')">Natural Disaster Survival</button>
+            <button onclick="launchGame('obby')">Obstacle Course (Obby)</button>
         </div>
+        <div id="game-view" style="text-align:center;"></div>
     </div>
 
     <div id="studio" class="game-container">
-        <h2 style="text-align:center;">PeakBlox Studio (Basic)</h2>
-        <p style="text-align:center;">Simple 3D builder coming soon - for now use the games above.</p>
+        <h2 style="text-align:center;">PeakBlox Studio (Demo)</h2>
+        <iframe src="https://threejs.org/examples/#webgl_geometry_shapes" width="100%" height="600px" style="border:none; max-width:1100px; margin:auto; display:block;"></iframe>
     </div>
 
     <script>
+        let currentScene = null;
+
         function showSection(section) {
             document.querySelectorAll('.game-container').forEach(el => el.classList.remove('active'));
             document.getElementById(section).classList.add('active');
+            if (currentScene) currentScene = null;
         }
 
         function launchGame(type) {
-            alert(`Launching ${type}... \n\n(Real mini-game would load here with Three.js)\n\nUse your PeakBlox.exe launcher for best experience.`);
-            // In a full version this would load a full Three.js game
+            const view = document.getElementById('game-view');
+            view.innerHTML = `<h3>Playing: ${type === 'disaster' ? 'Natural Disaster Survival' : 'Obby'}</h3><canvas id="gameCanvas" width="900" height="600"></canvas>`;
+
+            const canvas = document.getElementById('gameCanvas');
+            const scene = new THREE.Scene();
+            const camera = new THREE.PerspectiveCamera(75, canvas.width / canvas.height, 0.1, 1000);
+            const renderer = new THREE.WebGLRenderer({ canvas: canvas });
+            renderer.setSize(canvas.width, canvas.height);
+
+            // Simple ground
+            const groundGeo = new THREE.PlaneGeometry(50, 50);
+            const groundMat = new THREE.MeshBasicMaterial({ color: 0x228822 });
+            const ground = new THREE.Mesh(groundGeo, groundMat);
+            ground.rotation.x = -Math.PI / 2;
+            scene.add(ground);
+
+            // Player cube
+            const playerGeo = new THREE.BoxGeometry(1, 1, 1);
+            const playerMat = new THREE.MeshBasicMaterial({ color: 0xff0000 });
+            const player = new THREE.Mesh(playerGeo, playerMat);
+            player.position.y = 0.5;
+            scene.add(player);
+
+            camera.position.set(0, 8, 15);
+            camera.lookAt(0, 0, 0);
+
+            let keys = {};
+            window.addEventListener('keydown', e => keys[e.key.toLowerCase()] = true);
+            window.addEventListener('keyup', e => keys[e.key.toLowerCase()] = false);
+
+            function animate() {
+                requestAnimationFrame(animate);
+                if (keys['w']) player.position.z -= 0.2;
+                if (keys['s']) player.position.z += 0.2;
+                if (keys['a']) player.position.x -= 0.2;
+                if (keys['d']) player.position.x += 0.2;
+                renderer.render(scene, camera);
+            }
+            animate();
+
+            currentScene = { scene, renderer };
         }
     </script>
 </body>
